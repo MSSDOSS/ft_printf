@@ -6,15 +6,15 @@
 #    By: hel-haia <hel-haia@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/18 16:12:59 by hel-haia          #+#    #+#              #
-#    Updated: 2022/11/20 13:51:53 by hel-haia         ###   ########.fr        #
+#    Updated: 2023/05/05 18:06:51 by hel-haia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= libftprintf.a
 
 SRCS	= ft_printf.c \
-			ft_puts.c \
-			ft_format.c \
+			tools.c \
+			hex.c \
 
 OBJS	= $(SRCS:%.c=%.o)
 

@@ -6,69 +6,86 @@
 /*   By: hel-haia <hel-haia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 17:15:02 by hel-haia          #+#    #+#             */
-/*   Updated: 2022/11/20 16:35:38 by hel-haia         ###   ########.fr       */
+/*   Updated: 2023/05/05 18:01:17 by hel-haia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	ft_upperhex(unsigned int n, int *len)
+int	ft_get_format(char format)
 {
-	if (n <= 15 && *len != -1)
-	{
-		ft_putchar("0123456789ABCDEF"[n], len);
-	}
-	else if (n > 15)
-	{
-		ft_upperhex(n / 16, len);
-		ft_upperhex(n % 16, len);
-	}
+	if (format == 'd' || format == 'i')
+		return (1);
+	else if (format == 'x')
+		return (2);
+	else if (format == 'X')
+		return (3);
+	else if (format == 'p')
+		return (4);
+	else if (format == 's')
+		return (5);
+	else if (format == 'c')
+		return (6);
+	else if (format == 'u')
+		return (7);
+	else if (format == '%')
+		return (8);
+	return (0);
 }
 
-void	ft_lowerhex(unsigned long int n, int *len)
+void	ft_format_create(int n, va_list ptr, int *tol)
 {
-	if (n <= 15 && *len != -1)
-	{
-		ft_putchar("0123456789abcdef"[n], len);
-	}
-	else if (n > 15)
-	{
-		ft_lowerhex(n / 16, len);
-		ft_lowerhex(n % 16, len);
-	}
+	if (n <= 0 && n >= 9)
+		return ;
+	else if (n == 5)
+		ft_putstr(va_arg(ptr, char *), tol);
+	else if (n == 1)
+		ft_putnbr(va_arg(ptr, int), tol);
+	else if (n == 2)
+		ft_lowerhex(va_arg(ptr, unsigned int), tol);
+	else if (n == 3)
+		ft_upperhex(va_arg(ptr, unsigned int), tol);
+	else if (n == 4)
+		ft_hexp(va_arg(ptr, void *), tol);
+	else if (n == 6)
+		ft_putchar(va_arg(ptr, int), tol);
+	else if (n == 7)
+		ft_putunsigned(va_arg(ptr, unsigned int), tol);
+	else if (n == 8)
+		ft_putchar('%', tol);
 }
 
-void	ft_hexp(void *ptr, int *len)
+int	work_search(char *str, va_list args, int tol)
 {
-	ft_putstr("0x", len);
-	ft_lowerhex((unsigned long int)ptr, len);
+	while (*str)
+	{
+		while (*str != '%' && *str)
+		{
+			ft_putchar(*str, &tol);
+			str++;
+		}
+		if (*str && ft_get_format(*(str + 1)) > 0)
+		{
+			ft_format_create(ft_get_format(*(str + 1)), args, &tol);
+			str++;
+		}
+		if (!(*str))
+			break ;
+		str++;
+	}
+	return (tol);
 }
 
 int	ft_printf(const char *format, ...)
 {
+	int		tol;
 	va_list	args;
-	int		len;
 
 	if (!format)
 		return (-1);
+	tol = 0;
 	va_start(args, format);
-	len = 0;
-	while (*format)
-	{
-		while (*format != '%' && *format)
-		{
-			ft_putchar(*format, &len);
-			format++;
-		}
-		if (*format && ft_formatgetter(*(format + 1)) > 0)
-		{
-			ft_print_format(ft_formatgetter(*(format + 1)), args, &len);
-			format++;
-		}
-		if (!(*format))
-			break ;
-		format++;
-	}
+	tol = work_search((char *)format, args, tol);
 	va_end(args);
-	return (len);
+	return (tol);
 }
